@@ -2,7 +2,7 @@ import axios from 'axios'
 // import { getStore } from '@/stores'
 import { message } from 'antd'
 import bindDispatchToPromise from 'bind-promise-to-dispatch'
-import { types } from '@/stores/reducers/auth'
+import { types } from '@/reducers/auth'
 import { replace } from 'react-router-redux'
 
 

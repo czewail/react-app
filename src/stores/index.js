@@ -1,10 +1,10 @@
 import { createStore, applyMiddleware, compose } from 'redux'
 import { persistStore } from 'redux-persist'
-import createRootReducer from './reducers'
+import createRootReducer from '../reducers'
 import createHistory from 'history/createHashHistory'
 import { routerMiddleware } from 'connected-react-router'
 import createSagaMiddleware from 'redux-saga'
-import sagas from './sagas'
+import sagas from '../sagas'
 import logger from 'redux-logger'
 
 // 创建history
@@ -27,8 +27,8 @@ export default function configureStore(onComplete = () => { }) {
     applyMiddleware(...middleWares),
   ))
   if (module.hot) {
-    module.hot.accept('./reducers', () => {
-      const nextRootReducer = require('./reducers/index').default
+    module.hot.accept('../reducers', () => {
+      const nextRootReducer = require('../reducers/index').default
       store.replaceReducer(nextRootReducer)
     })
   }

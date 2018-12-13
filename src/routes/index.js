@@ -1,5 +1,6 @@
 import React from 'react'
 import Loadable from 'react-loadable'
+import accountRoutes from './account'
 
 export default [
   {
@@ -8,6 +9,7 @@ export default [
       loader: () => import(/* webpackChunkName: "account" */ '@/layouts/account'),
       loading: () => (<div />)
     }),
+    routes: accountRoutes
   },
   {
     path: '/',

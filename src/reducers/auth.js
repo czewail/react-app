@@ -1,5 +1,7 @@
 // import { combineReducers } from 'redux'
 
+// MARK: TYPES
+
 export const types = {
   REQUEST_TOKEN: Symbol('request_token'),
   RECEIVE_TOKEN: Symbol('receive_token'),
@@ -8,11 +10,24 @@ export const types = {
   CLEAR_TOKEN: Symbol('clear_token'),
 }
 
-const auth = (state = {
+// MARK: ACTIONS
+
+export const actions = {
+  login: (username, password) => {
+    return { type: types.REQUEST_TOKEN, payload: { username, password } }
+  },
+  logout: () => {
+    return { type: types.CLEAR_TOKEN }
+  },
+}
+
+// MARK: REDUCERS
+
+const authReducer = (state = {
   isFetching: true,
   didInvalidate: false,
   lastFetchedTime: null,
-  data: null
+  entity: null
 }, action) => {
   switch (action.type) {
     case types.REQUEST_TOKEN:
@@ -27,7 +42,7 @@ const auth = (state = {
         isFetching: false,
         didInvalidate: false,
         lastFetchedTime: Math.round(Date.now() / 1000),
-        data: action.payload || null,
+        entity: action.payload || null,
       }
     case types.REQUEST_REFRESHED_TOKEN:
       return {
@@ -41,7 +56,7 @@ const auth = (state = {
         isFetching: false,
         didInvalidate: false,
         lastFetchedTime: Math.round(Date.now() / 1000),
-        data: action.payload || null,
+        entity: action.payload || null,
       }
     default:
       return state
@@ -52,4 +67,4 @@ const auth = (state = {
 //   token,
 // })
 
-export default auth
+export default authReducer

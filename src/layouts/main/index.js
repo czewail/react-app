@@ -4,14 +4,24 @@ import { Link, matchPath } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { autobind } from 'core-decorators'
 import { push } from 'react-router-redux'
-import { types } from '../../stores/reducers/auth'
+import { Redirect, Switch } from 'react-router-dom'
+import RouteWithSubRoutes from '@/constants/RouteWithSubRoutes'
+import { types } from '../../reducers/auth'
 import styles from './index.less'
 import menus from '@/constants/menus'
+import { actions } from '../../reducers/auth'
 
 const { SubMenu } = Menu
 const { Header, Content, Sider } = Layout
 
-@connect(({ auth }) => ({ auth }))
+function checkAuthenticated(authState) {
+  const timestamp = Math.round(new Date().getTime() / 1000)
+  const { entity, lastFetchedTime } = authState
+  const refreshTokenExpires = 2592000
+  return !!(entity && entity.accessToken && (timestamp - lastFetchedTime < refreshTokenExpires))
+}
+
+@connect(({ auth }) => ({ auth }), { ...actions })
 export default class MainLayout extends Component {
   constructor(props) {
     super(props)
@@ -29,13 +39,6 @@ export default class MainLayout extends Component {
   }
 
   @autobind()
-  handleLogout() {
-    this.props.dispatch({
-      type: types.CLEAR_TOKEN
-    })
-  }
-
-  @autobind()
   handleModifyPassWorld() {
     this.props.dispatch(push('/account/reset-password'))
   }
@@ -46,7 +49,6 @@ export default class MainLayout extends Component {
     return (
       <Layout style={{ minHeight: '100%' }}>
         <Sider
-          theme="dark"
           trigger={null}
           collapsible
           collapsed={this.state.collapsed}
@@ -117,7 +119,7 @@ export default class MainLayout extends Component {
                   <Menu>
                     <Menu.Item>
                       <a onClick={this.handleModifyPassWorld}>修改密码</a>
-                      <a onClick={this.handleLogout}>退出登录</a>
+                      <a onClick={this.props.logout}>退出登录</a>
                     </Menu.Item>
                   </Menu>
                 )}>
@@ -128,7 +130,18 @@ export default class MainLayout extends Component {
               </div>
             </Header>
           </Header>
-          <Content className={styles.content}></Content>
+          <Content className={styles.content}>
+            <Switch>
+              {
+                checkAuthenticated(auth) ?
+                  routes && routes.map((route, index) => (<RouteWithSubRoutes {...route} key={index} />))
+                  :
+                  <Redirect
+                    to="/account/login"
+                  />
+              }
+            </Switch>
+          </Content>
         </Layout>
       </Layout>
     )
