@@ -3,12 +3,11 @@ const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 const ROOT_PATH = path.resolve(__dirname, '../')
 const SRC_PATH = path.resolve(ROOT_PATH, 'src') // __dirname 中的src目录，以此类推
 const APP_FILE = path.resolve(ROOT_PATH, 'index.js') // 根目录文件app.jsx地址
-const BUILD_PATH = path.resolve(ROOT_PATH, 'dist') // 发布文件所存放的目录
+const BUILD_PATH = path.resolve(ROOT_PATH, 'dist/assets') // 发布文件所存放的目录
 
 module.exports = {
   mode: 'production',
@@ -32,7 +31,7 @@ module.exports = {
         test: /\.css$/,
         use: [
           MiniCssExtractPlugin.loader,
-          'css-loader?modules&localIdentName=[name]__[local]___[hash:base64:8]',
+          'css-loader',
           {
             loader: 'postcss-loader',
             options: {
@@ -46,6 +45,25 @@ module.exports = {
       },
       {
         test: /\.less$/,
+        include: /node_modules\/antd/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader?modules&localIdentName=[name]__[local]___[hash:base64:8]',
+          {
+            loader: 'postcss-loader',
+            options: {
+              plugins: (loader) => [
+                require('autoprefixer')(),
+                // require('cssnano')()
+              ]
+            }
+          },
+          'less-loader'
+        ]
+      },
+      {
+        test: /\.less$/,
+        exclude: /node_modules\/antd/,
         use: [
           MiniCssExtractPlugin.loader,
           'css-loader?modules&localIdentName=[name]__[local]___[hash:base64:8]',
@@ -82,9 +100,8 @@ module.exports = {
       chunkFilename: "[name].[chunkhash:5].chunk.css"
     }),
     new HtmlWebpackPlugin({
-      filename: path.resolve(BUILD_PATH, 'index.html'),
+      filename: path.resolve(BUILD_PATH, '../index.html'),
       template: path.resolve(ROOT_PATH, 'index.html'),
-      publicPath: '/assets/',
     }),
     new webpack.HashedModuleIdsPlugin(),
     new webpack.HotModuleReplacementPlugin(),
@@ -114,24 +131,6 @@ module.exports = {
       }
     },
     minimizer: [
-      // 自定义js优化配置，将会覆盖默认配置
-      new UglifyJsPlugin({
-        exclude: /\.min\.js$/, // 过滤掉以".min.js"结尾的文件，我们认为这个后缀本身就是已经压缩好的代码，没必要进行二次压缩
-        cache: true,
-        parallel: true, // 开启并行压缩，充分利用cpu
-        sourceMap: false,
-        extractComments: false, // 移除注释
-        uglifyOptions: {
-          compress: {
-            unused: true,
-            warnings: false,
-            drop_debugger: true
-          },
-          output: {
-            comments: false
-          }
-        }
-      }),
       new OptimizeCSSAssetsPlugin({})
     ]
   }

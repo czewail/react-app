@@ -6,7 +6,7 @@ const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin')
 const ROOT_PATH = path.resolve(__dirname, '../')
 const SRC_PATH = path.resolve(ROOT_PATH, 'src') // __dirname 中的src目录，以此类推
 const APP_FILE = path.resolve(ROOT_PATH, 'index.js') // 根目录文件app.jsx地址
-const BUILD_PATH = path.resolve(ROOT_PATH, 'dist') // 发布文件所存放的目录
+const BUILD_PATH = path.resolve(ROOT_PATH, 'dist/assets') // 发布文件所存放的目录
 
 module.exports = {
   devtool: 'cheap-module-source-map',
@@ -44,6 +44,7 @@ module.exports = {
       },
       {
         test: /\.less$/,
+        include: /node_modules\/antd/,
         use: [
           'style-loader',
           'css-loader?modules&localIdentName=[name]__[local]___[hash:base64:8]',
@@ -57,12 +58,27 @@ module.exports = {
             }
           },
           {
-            loader: 'less-loader',
+            loader: 'less-loader'
+          }
+        ]
+      },
+      {
+        test: /\.less$/,
+        exclude: /node_modules\/antd/,
+        use: [
+          'style-loader',
+          'css-loader?modules&localIdentName=[name]__[local]___[hash:base64:8]',
+          {
+            loader: 'postcss-loader',
             options: {
-              paths: [
-                SRC_PATH
+              plugins: (loader) => [
+                require('autoprefixer')(),
+                // require('cssnano')()
               ]
             }
+          },
+          {
+            loader: 'less-loader'
           }
         ]
       },
@@ -83,9 +99,8 @@ module.exports = {
       }
     }),
     new HtmlWebpackPlugin({
-      filename: path.resolve(BUILD_PATH, 'index.html'),
+      filename: path.resolve(BUILD_PATH, '../index.html'),
       template: path.resolve(ROOT_PATH, 'index.html'),
-      publicPath: '/assets/',
       alwaysWriteToDisk: true
     }),
     new HtmlWebpackHarddiskPlugin(),

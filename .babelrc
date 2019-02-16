@@ -1,11 +1,13 @@
 {
   "presets": [
-    "@babel/preset-env",
+    ["@babel/preset-env", {
+      "useBuiltIns": "usage",
+      "debug": true,
+    }],
     "@babel/preset-react"
   ],
   "plugins": [
     "react-hot-loader/babel",
-    "@babel/plugin-transform-runtime",
     "@babel/plugin-syntax-dynamic-import",
     [
       "@babel/plugin-proposal-decorators",
